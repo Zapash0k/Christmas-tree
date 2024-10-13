@@ -9,12 +9,12 @@ using namespace std;
 const vector<string> colors = { "\033[31m", "\033[34m", "\033[33m", "\033[35m", "\033[36m" };
 const vector<string> toySymbols = { "@", "%", "#", "&", "+" };
 
-// Функція для отримання наступного кольору
+// Р¤СѓРЅРєС†С–СЏ РґР»СЏ РѕС‚СЂРёРјР°РЅРЅСЏ РЅР°СЃС‚СѓРїРЅРѕРіРѕ РєРѕР»СЊРѕСЂСѓ
 string getNextColor(int index) {
     return colors[index % colors.size()];
 }
 
-// Функція для очищення екрану
+// Р¤СѓРЅРєС†С–СЏ РґР»СЏ РѕС‡РёС‰РµРЅРЅСЏ РµРєСЂР°РЅСѓ
 void clearScreen() {
 #ifdef _WIN32
     system("cls");
@@ -23,26 +23,21 @@ void clearScreen() {
 #endif
 }
 
-// Функція для створення ялинки
+// Р¤СѓРЅРєС†С–СЏ РґР»СЏ СЃС‚РІРѕСЂРµРЅРЅСЏ СЏР»РёРЅРєРё
 vector<vector<string>> createTree(int levels) {
-    vector<vector<string>> tree(levels + 2);  // Додаємо місце для стовбура
+    vector<vector<string>> tree(levels + 2);  // Р”РѕРґР°С”РјРѕ РјС–СЃС†Рµ РґР»СЏ СЃС‚РѕРІР±СѓСЂР°
     for (int level = 0; level < levels; ++level) {
         int stars = 2 * level + 1;
         int spaces = levels - level - 1;
 
-        string row(spaces, ' '); // Пробіли перед зірками
+        string row(spaces, ' '); // РџСЂРѕР±С–Р»Рё РїРµСЂРµРґ Р·С–СЂРєР°РјРё
         for (int i = 0; i < stars; ++i) {
-            if (i % 3 == 0 && level > 0) {
-                row += toySymbols[i % toySymbols.size()]; // Додаємо іграшки
-            }
-            else {
-                row += "\033[32m*"; // Додаємо зірки
-            }
+            row += "\033[32m*"; // Р”РѕРґР°С”РјРѕ Р·С–СЂРєРё
         }
-        row += string(spaces, ' '); // Пробіли після зірок
+        row += string(spaces, ' '); // РџСЂРѕР±С–Р»Рё РїС–СЃР»СЏ Р·С–СЂРѕРє
         tree[level] = { row };
     }
-    // Додаємо стовбур
+    // Р”РѕРґР°С”РјРѕ СЃС‚РѕРІР±СѓСЂ
     string trunk(levels - 1, ' ');
     trunk += "\033[33m***";
     tree[levels] = { trunk };
@@ -50,16 +45,17 @@ vector<vector<string>> createTree(int levels) {
     return tree;
 }
 
-// Функція для виведення ялинки з анімацією
-void displayTree(vector<vector<string>>& tree, int animationCycles) {
+// Р¤СѓРЅРєС†С–СЏ РґР»СЏ РІРёРІРµРґРµРЅРЅСЏ СЏР»РёРЅРєРё Р· РІРёРїР°РґРєРѕРІРёРјРё РїСЂРёРєСЂР°СЃР°РјРё
+void displayTreeWithRandomToys(vector<vector<string>>& tree, int animationCycles) {
     for (int cycle = 0; cycle < animationCycles; ++cycle) {
         clearScreen();
-        // Виводимо ялинку з анімацією
+        // Р’РёРІРѕРґРёРјРѕ СЏР»РёРЅРєСѓ Р· РІРёРїР°РґРєРѕРІРёРјРё РїСЂРёРєСЂР°СЃР°РјРё
         for (int i = 0; i < tree.size(); ++i) {
             string row = tree[i][0];
             for (int j = 0; j < row.length(); ++j) {
-                if (row[j] == '@' || row[j] == '%' || row[j] == '#' || row[j] == '&' || row[j] == '+') {
-                    cout << getNextColor(cycle) << row[j];
+                // Р’РёРїР°РґРєРѕРІРѕ РґРѕРґР°С”РјРѕ РїСЂРёРєСЂР°СЃРё (Р· Р№РјРѕРІС–СЂРЅС–СЃС‚СЋ 1 РґРѕ 5)
+                if (row[j] == '*' && rand() % 5 == 0) {
+                    cout << getNextColor(cycle) << toySymbols[rand() % toySymbols.size()];
                 }
                 else {
                     cout << row[j];
@@ -67,44 +63,38 @@ void displayTree(vector<vector<string>>& tree, int animationCycles) {
             }
             cout << endl;
         }
-        this_thread::sleep_for(chrono::milliseconds(500)); // Затримка для анімації
+        this_thread::sleep_for(chrono::milliseconds(500)); // Р—Р°С‚СЂРёРјРєР° РґР»СЏ Р°РЅС–РјР°С†С–С—
     }
 }
 
-// Функція для збереження ялинки у файл
+// Р¤СѓРЅРєС†С–СЏ РґР»СЏ Р·Р±РµСЂРµР¶РµРЅРЅСЏ СЏР»РёРЅРєРё Сѓ С„Р°Р№Р»
 void saveTreeToFile(const vector<vector<string>>& tree) {
     ofstream file("christmas_tree_animated.txt");
     if (file.is_open()) {
         for (const auto& row : tree) {
             for (const auto& symbol : row[0]) {
-                if (symbol == '@' || symbol == '%' || symbol == '#' || symbol == '&' || symbol == '+') {
-                    file << symbol;
-                }
-                else if (symbol == '*') {
-                    file << '*';
-                }
-                else {
+                if (symbol == '*' || symbol == ' ' || symbol == '\033') {
                     file << symbol;
                 }
             }
             file << endl;
         }
         file.close();
-        cout << "Ялинку збережено до файлу!" << endl;
+        cout << "Save was successful!" << endl;
     }
     else {
-        cerr << "Помилка під час збереження ялинки!" << endl;
+        cerr << "Error occurred while saving the tree into a file!" << endl;
     }
 }
 
 int main() {
     srand(time(0));
     int h;
-    cout << "Введіть кількість рівнів: ";
+    cout << "Enter number of levels: ";
     cin >> h;
     vector<vector<string>> tree = createTree(h);
-    int animationCycles = 10; // Кількість циклів анімації
-    displayTree(tree, animationCycles);
+    int animationCycles = 10; // РљС–Р»СЊРєС–СЃС‚СЊ С†РёРєР»С–РІ Р°РЅС–РјР°С†С–С—
+    displayTreeWithRandomToys(tree, animationCycles);
     saveTreeToFile(tree);
     return 0;
 }
